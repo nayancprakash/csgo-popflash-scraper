@@ -10,11 +10,13 @@ def get_title(data):
 
 if __name__ == "__main__":
 
-    match_id = input("Please enter the popflash match ID:")
-    csv_file = input("Please enter the CSV file to output to:")
+    match_id = input("Please enter the popflash match ID: ")
+
+    cookie_file = open("cookie.cookie", "r")
+    cookie = cookie_file.read()
 
     URL = "https://popflash.site/match/" + match_id.strip()
-    page = requests.get(URL)
+    page = requests.get(URL, headers={"cookie": cookie})
     soup = BeautifulSoup(page.content, "html.parser")
 
     scoreboard = soup.find(class_="scoreboards")
@@ -29,7 +31,6 @@ if __name__ == "__main__":
                 elif y > 0 and x == 0:
                     player = get_title(data)
                 elif y > 0 and x > 0:
-                    # print(player)
                     if player not in stats:
                         stats[player] = {}
                     stats[player][stat_names[x-1]] = data.text
@@ -44,6 +45,6 @@ if __name__ == "__main__":
         for index, (_, value) in enumerate(player_stats.items()):
             csv_lines[index + 1].append(value)
 
-    writer = csv.writer(open(csv_file + ".csv", "w", newline=""))
+    writer = csv.writer(open(match_id + ".csv", "w", newline=""))
     for row in csv_lines:
         writer.writerow(row)
